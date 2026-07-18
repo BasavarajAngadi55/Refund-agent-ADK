@@ -1,0 +1,21 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "ord_101_approve",
+      "prompt": "I bought a Leather Jacket under Order ORD-101 and I need a refund.",
+      "expected_tool_calls": ["check_order_status", "process_refund"]
+    },
+    {
+      "eval_case_id": "ord_103_clearance_refuse",
+      "prompt": "Can you refund my clearance shirt? My order id is ORD-103.",
+      "expected_tool_calls": ["check_order_status"],
+      "unexpected_tool_calls": ["process_refund"]
+    },
+    {
+      "eval_case_id": "ord_102_expired_refuse",
+      "prompt": "I want a refund for order ORD-102.",
+      "expected_tool_calls": ["check_order_status"],
+      "unexpected_tool_calls": ["process_refund"]
+    }
+  ]
+}
