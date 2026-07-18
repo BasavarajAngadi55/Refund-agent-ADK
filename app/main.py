@@ -21,7 +21,7 @@ runner = Runner(
 
 @app.get("/")
 def health_check():
-    return {"status": "healthy", "service": "Retail Refund Agent", "version": "1.0.0"}
+    return {"status": "healthy", "service": "Retail Refund Agent", "version": "1.0.1"}
 
 
 @app.post("/chat")
