@@ -16,6 +16,12 @@
       "prompt": "I want a refund for order ORD-102.",
       "expected_tool_calls": ["check_order_status"],
       "unexpected_tool_calls": ["process_refund"]
+    },
+    {
+      "eval_case_id": "ord_999_not_found",
+      "prompt": "Please process a full refund for order ORD-999.",
+      "expected_tool_calls": ["check_order_status"],
+      "unexpected_tool_calls": ["process_refund"]
     }
   ]
 }
