@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Smoke test imports
+        run: |
+          python -c "from app.main import app; from app.agent import build_model, root_agent"
+          python -c "from tests.eval.tool_call_check import evaluate"
+
+      - name: Tool trajectory unit check
+        run: |
+          python - <<'PY'
+          from tests.eval.tool_call_check import evaluate
+
+          ok = evaluate({
+              "tool_calls": ["check_order_status", "process_refund"],
+              "expected_tool_calls": ["check_order_status", "process_refund"],
+          })
+          assert ok["score"] == 1.0, ok
+
+          bad = evaluate({
+              "tool_calls": ["check_order_status", "process_refund"],
+              "expected_tool_calls": ["check_order_status"],
+              "unexpected_tool_calls": ["process_refund"],
+          })
+          assert bad["score"] == 0.0, bad
+          print("tool_call_check OK")
+          PY

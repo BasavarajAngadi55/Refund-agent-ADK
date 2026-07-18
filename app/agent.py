@@ -1,12 +1,29 @@
 import os
 from dotenv import load_dotenv
 from google.adk import Agent
+from google.adk.models.google_llm import Gemini
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 
 load_dotenv()
 
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma4:e2b")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+
+
+def build_model():
+    """Cloud: Groq free API (recommended) or Gemini. Local: Ollama/Gemma."""
+    if GROQ_API_KEY:
+        return LiteLlm(model=f"groq/{GROQ_MODEL}")
+    if GEMINI_API_KEY:
+        return Gemini(
+            model=GEMINI_MODEL,
+            client_kwargs={"api_key": GEMINI_API_KEY},
+        )
+    return LiteLlm(model=f"ollama_chat/{OLLAMA_MODEL}")
 
 # Mock order database (reference date in prompt: July 17, 2026)
 MOCK_ORDERS = {
@@ -61,7 +78,7 @@ process_refund_tool = FunctionTool(func=process_refund)
 
 refund_agent = Agent(
     name="retail_refund_agent",
-    model=LiteLlm(model=f"ollama_chat/{OLLAMA_MODEL}"),
+    model=build_model(),
     instruction=(
         "You are a policy-compliant Retail Refund Assistant.\n\n"
         "Rules:\n"
