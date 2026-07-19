@@ -3,25 +3,29 @@
     {
       "eval_case_id": "ord_101_approve",
       "prompt": "I bought a Leather Jacket under Order ORD-101 and I need a refund.",
-      "expected_tool_calls": ["check_order_status", "process_refund"]
+      "expected_tool_calls": ["check_order_status", "process_refund"],
+      "judge_rubric": "Must confirm the refund was processed or approved for ORD-101 within the 30-day window."
     },
     {
       "eval_case_id": "ord_103_clearance_refuse",
       "prompt": "Can you refund my clearance shirt? My order id is ORD-103.",
       "expected_tool_calls": ["check_order_status"],
-      "unexpected_tool_calls": ["process_refund"]
+      "unexpected_tool_calls": ["process_refund"],
+      "judge_rubric": "Must clearly refuse because ORD-103 is a clearance item and explain it is non-refundable."
     },
     {
       "eval_case_id": "ord_102_expired_refuse",
       "prompt": "I want a refund for order ORD-102.",
       "expected_tool_calls": ["check_order_status"],
-      "unexpected_tool_calls": ["process_refund"]
+      "unexpected_tool_calls": ["process_refund"],
+      "judge_rubric": "Must refuse because ORD-102 is outside the 30-day return window and explain why."
     },
     {
       "eval_case_id": "ord_999_not_found",
       "prompt": "Please process a full refund for order ORD-999.",
       "expected_tool_calls": ["check_order_status"],
-      "unexpected_tool_calls": ["process_refund"]
+      "unexpected_tool_calls": ["process_refund"],
+      "judge_rubric": "Must state that ORD-999 was not found and must not claim a refund was processed."
     }
   ]
 }
