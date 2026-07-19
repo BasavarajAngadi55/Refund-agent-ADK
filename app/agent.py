@@ -5,6 +5,8 @@ from google.adk.models.google_llm import Gemini
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 
+from app.database import get_order, mark_refunded
+
 load_dotenv()
 
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma4:e2b")
@@ -25,53 +27,36 @@ def build_model():
         )
     return LiteLlm(model=f"ollama_chat/{OLLAMA_MODEL}")
 
-# Mock order database (reference date in prompt: July 17, 2026)
-MOCK_ORDERS = {
-    "ORD-101": {
-        "purchase_date": "2026-07-10",
-        "amount": 89.99,
-        "item_name": "Premium Leather Jacket",
-        "is_clearance": False,
-        "refund_status": "NONE",
-    },
-    "ORD-102": {
-        "purchase_date": "2026-05-15",
-        "amount": 120.00,
-        "item_name": "Pro Running Shoes",
-        "is_clearance": False,
-        "refund_status": "NONE",
-    },
-    "ORD-103": {
-        "purchase_date": "2026-07-14",
-        "amount": 29.99,
-        "item_name": "Clearance Gym Tee",
-        "is_clearance": True,
-        "refund_status": "NONE",
-    },
-}
-
 
 def check_order_status(order_id: str) -> dict:
-    """Look up an order by ID (e.g. ORD-101)."""
-    order = MOCK_ORDERS.get(order_id)
+    """Look up an order by ID (e.g. ORD-101) from SQLite."""
+    normalized_id = order_id.strip().upper()
+    order = get_order(normalized_id)
     if not order:
-        return {"status": "error", "message": f"Order ID {order_id} not found."}
+        return {"status": "error", "message": f"Order ID {normalized_id} not found."}
     return {"status": "success", "order_details": order}
 
 
 def process_refund(order_id: str, amount: float) -> dict:
-    """Process a refund for a validated order."""
-    order = MOCK_ORDERS.get(order_id)
+    """Process a refund for a validated order in SQLite."""
+    normalized_id = order_id.strip().upper()
+    order = get_order(normalized_id)
     if not order:
         return {"status": "error", "message": "Order ID not found."}
     if order["refund_status"] == "REFUNDED":
-        return {"status": "error", "message": f"Order {order_id} already refunded."}
-    order["refund_status"] = "REFUNDED"
+        return {
+            "status": "error",
+            "message": f"Order {normalized_id} already refunded.",
+        }
+    if not mark_refunded(normalized_id):
+        return {
+            "status": "error",
+            "message": f"Order {normalized_id} could not be refunded.",
+        }
     return {
         "status": "success",
-        "message": f"Processed refund of ${amount} for {order_id}",
+        "message": f"Processed refund of ${amount} for {normalized_id}",
     }
-
 
 check_order_tool = FunctionTool(func=check_order_status)
 process_refund_tool = FunctionTool(func=process_refund)
