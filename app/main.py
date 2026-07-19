@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
@@ -11,12 +12,20 @@ from google.adk.runners import Runner
 from google.genai import types
 
 from app.agent import refund_agent
+from app.database import count_orders, init_db
 
 load_dotenv()
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-app = FastAPI(title="Retail Refund Service")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="Retail Refund Service", lifespan=lifespan)
 session_service = InMemorySessionService()
 
 runner = Runner(
@@ -35,7 +44,12 @@ def ui():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "Retail Refund Agent", "version": "1.0.2"}
+    return {
+        "status": "healthy",
+        "service": "Retail Refund Agent",
+        "version": "1.1.0",
+        "orders_in_db": count_orders(),
+    }
 
 
 async def ensure_session(user_id: str, session_id: str) -> None:

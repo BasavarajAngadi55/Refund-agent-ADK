@@ -27,7 +27,10 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 sys.path.insert(0, str(PROJECT_ROOT))
 from app.agent import root_agent  # noqa: E402
+from app.database import init_db  # noqa: E402
 from tests.eval.tool_call_check import evaluate as score_tools  # noqa: E402
+
+init_db()
 
 
 def load_cases() -> list[dict]:
