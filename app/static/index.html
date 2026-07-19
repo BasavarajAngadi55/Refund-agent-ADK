@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retail Refund Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div>
+          <h1>Retail Refund Assistant</h1>
+          <p class="subtitle">Policy-aware refunds for ORD-101, ORD-102, ORD-103</p>
+        </div>
+        <button id="new-chat-btn" type="button" class="secondary-btn">New chat</button>
+      </header>
+
+      <main id="chat-window" class="chat-window" aria-live="polite"></main>
+
+      <footer class="composer">
+        <form id="chat-form">
+          <input
+            id="message-input"
+            type="text"
+            placeholder="Ask for a refund (e.g. I need a refund for ORD-101)"
+            autocomplete="off"
+            required
+          />
+          <button id="send-btn" type="submit">Send</button>
+        </form>
+        <p class="hint">Try: ORD-101 (eligible), ORD-102 (expired), ORD-103 (clearance)</p>
+      </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
